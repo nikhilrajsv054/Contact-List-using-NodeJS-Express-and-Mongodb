@@ -1,0 +1,1 @@
+console.log("static file has been loaded");

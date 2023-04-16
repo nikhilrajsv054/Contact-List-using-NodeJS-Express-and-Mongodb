@@ -1,0 +1,14 @@
+MY CONTACT LIST
+
+- created index.js
+- npm init
+- npm install express
+	- start server
+- npm install EJS
+	- app.use EJS
+	- path of views
+	- ejs home.ejs
+- form + POST req
+- static files - css 
+	- app.use(express.static('assests'));
+- 
