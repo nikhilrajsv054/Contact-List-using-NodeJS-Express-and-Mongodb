@@ -36,18 +36,32 @@ var contactList =[
 ]
 
 
-app.get('/', function(req, res){ // GET request handler for the root route ('/') of the web application.
-  Contact.find({})               // 'find' method of the 'Contact' model to retrieve all contacts from the database.
-    .then(function(contacts){    // This code block is executed when the 'find' operation is successful.
-      return res.render('home',{ // code renders a view called 'home' and passes it the contacts retrieved from the database.
-          title: "Contact List",
-          contact_list: contacts
-      });
-    })
-    .catch(function(err){
-      console.log("error in fetching contacts from db: " + err);
-      return;
+// app.get('/', function(req, res){ // GET request handler for the root route ('/') of the web application.
+//   Contact.find({})               // 'find' method of the 'Contact' model to retrieve all contacts from the database.
+//     .then(function(contacts){    // This code block is executed when the 'find' operation is successful.
+//       return res.render('home',{ // code renders a view called 'home' and passes it the contacts retrieved from the database.
+//           title: "Contact List",
+//           contact_list: contacts
+//       });
+//     })
+//     .catch(function(err){
+//       console.log("error in fetching contacts from db: " + err);
+//       return;
+//     });
+// });
+
+
+app.get('/', async function(req, res){ 
+  try {
+    const contacts = await Contact.find({});
+    res.render('home',{
+      title: "Contact List",
+      contact_list: contacts
     });
+  } catch (err) {
+    console.log("error in fetching contacts from db: " + err);
+    return;
+  }
 });
 
 
@@ -57,36 +71,30 @@ app.get("/practice", (req, res) => {
   });
 });
 
-app.post('/create-contact', ((req,res) => {
-
-    Contact.create({ name: req.body.name, phone: req.body.phone})
-      .then((contact) => {
-        console.log("created contact:", contact);
-      })
-      .catch((err) =>{
-        console.error(err);
-      })
-      return res.redirect('back');
-      // Redirects the user back to the previous page. The res parameter is the response object, and 
-      //the redirect() method is used to redirect the user to a different page. 
-      // The string 'back' is passed as an argument, which tells the server to redirect the user to the previous page they were on.
-}))
-
-
-app.get('/delete-contact/', function(req, res){
-  console.log(req.query);
-  let id = req.query.id
-
-  Contact.findOneAndDelete({_id: id}).exec()
-      .then(() => {
-          return res.redirect('back');
-      })
-      .catch((err) => {
-          console.log('error in deleting the object');
-          return;
-      });
+app.post('/create-contact', async (req, res) => {
+  try {
+    const contact = await Contact.create({ name: req.body.name, phone: req.body.phone });
+    console.log("created contact:", contact);
+    return res.redirect('back');
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Could not create contact");
+  }
 });
 
+
+app.get('/delete-contact/', async function(req, res) {
+  console.log(req.query);
+  let id = req.query.id;
+
+  try {
+    await Contact.findOneAndDelete({ _id: id }).exec();
+    return res.redirect('back');
+  } catch (err) {
+    console.log('error in deleting the object');
+    return;
+  }
+});
 
 
 app.listen(port, (err) => {
